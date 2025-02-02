@@ -2,6 +2,7 @@
 
 # dependencies
 FirebaseConfig.ts
+
 /node_modules
 /.pnp
 .pnp.*
