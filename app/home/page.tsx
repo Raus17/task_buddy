@@ -14,7 +14,6 @@ const Page = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("list");
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!user) {
       router.push("/");
@@ -23,19 +22,14 @@ const Page = () => {
 
   return (
     <div>
-      {/* Fixed Header */}
       <Header />
 
-      {/* Main Content Wrapper */}
       <main className="pt-16 px-6">
-        {/* Top Row: Tabs on Left, Logout on Right */}
         <div className="flex justify-between items-center border-b pb-2">
-          {/* Tab Switcher (Left Aligned) */}
           <div className="flex items-center gap-6">
             <button
-              className={`flex items-center gap-2 px-3 py-1 text-lg font-semibold transition-all ${
-                activeTab === "list" ? "text-black border-b-2 border-black" : "text-gray-400"
-              }`}
+              className={`flex items-center gap-2 px-3 py-1 text-lg font-semibold transition-all ${activeTab === "list" ? "text-black border-b-2 border-black" : "text-gray-400"
+                }`}
               onClick={() => setActiveTab("list")}
             >
               <FaListUl className="text-xl" />
@@ -43,21 +37,17 @@ const Page = () => {
             </button>
 
             <button
-              className={`flex items-center gap-2 px-3 py-1 text-lg font-semibold transition-all ${
-                activeTab === "board" ? "text-black border-b-2 border-black" : "text-gray-400"
-              }`}
+              className={`flex items-center gap-2 px-3 py-1 text-lg font-semibold transition-all ${activeTab === "board" ? "text-black border-b-2 border-black" : "text-gray-400"
+                }`}
               onClick={() => setActiveTab("board")}
             >
               <PiSquaresFourBold className="text-xl" />
               Board
             </button>
           </div>
-
-          {/* Logout Button (Right Aligned) */}
           <LogoutButton />
         </div>
 
-        {/* Render the Correct Component Based on Active Tab */}
         {activeTab === "list" ? <List /> : <Board />}
       </main>
     </div>
