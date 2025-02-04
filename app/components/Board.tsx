@@ -6,9 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../redux/store";
 import { fetchTasks, addTask, updateTask, deleteTask } from "../redux/tasksSlice";
 import AddTaskModal from "./AddTaskModal";
-import Column from "./Column"; 
-
-const ItemTypes = { TASK: "task" };
+import Column from "./Column";
 
 const Board: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -24,7 +22,9 @@ const Board: React.FC = () => {
   };
 
   const handleMoveTask = (task: Task, newStatus: string) => {
-    dispatch(updateTask({ ...task, status: newStatus }));
+    if (task.status !== newStatus) {
+      dispatch(updateTask({ ...task, status: newStatus }));
+    }
   };
 
   const handleDeleteTask = (id: string) => {
@@ -34,7 +34,9 @@ const Board: React.FC = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="p-4">
-        <button onClick={() => setIsModalOpen(true)} className="mb-4 p-2 bg-blue-500 text-white rounded">Add Task</button>
+        <button onClick={() => setIsModalOpen(true)} className="mb-4 p-2 bg-blue-500 text-white rounded">
+          Add Task
+        </button>
         <div className="flex gap-4">
           {["To-Do", "In-Progress", "Completed"].map((status) => (
             <Column
