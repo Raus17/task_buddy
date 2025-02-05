@@ -11,6 +11,9 @@
   "dependencies": {
     "@next/env": "^15.1.6",
     "@reduxjs/toolkit": "^2.5.1",
+    "@tiptap/extension-placeholder": "^2.11.5",
+    "@tiptap/react": "^2.11.5",
+    "@tiptap/starter-kit": "^2.11.5",
     "firebase": "^11.2.0",
     "next": "15.1.6",
     "react": "^19.0.0",
