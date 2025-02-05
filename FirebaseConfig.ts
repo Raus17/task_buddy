@@ -3,12 +3,12 @@ import { initializeAuth,getAuth, GoogleAuthProvider, getReactNativePersistence }
 import { getFirestore } from "firebase/firestore"; 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyANFZcl34LHenC4jj5Zw0ZCXyhs6rWOpKo",
-  authDomain: "taskbuddy-dd381.firebaseapp.com",
-  projectId: "taskbuddy-dd381",
-  storageBucket: "taskbuddy-dd381.firebasestorage.app",
-  messagingSenderId: "355751631967",
-  appId: "1:355751631967:web:ce01bd081b7f34476d4fea"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
 };
 
 const app = initializeApp(firebaseConfig);
