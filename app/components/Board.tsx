@@ -1,11 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../redux/store";
 import { fetchTasks, addTask, updateTask, deleteTask } from "../redux/tasksSlice";
 import AddTaskModal from "./AddTaskModal";
+import UpdateTaskModal from "./UpdateTaskModal";
 import Column from "./Column";
 import { auth } from "../../FirebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -14,9 +15,10 @@ const Board: React.FC = () => {
   const [user] = useAuthState(auth);
   const dispatch = useDispatch<AppDispatch>();
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [editTask, setEditTask] = useState<Task | null>(null);
 
-  // Fetch tasks when user is authenticated
   useEffect(() => {
     if (user) {
       dispatch(fetchTasks(user.uid));
@@ -26,28 +28,52 @@ const Board: React.FC = () => {
   const handleAddTask = (task: Omit<Task, "id">) => {
     if (!user) return;
     dispatch(addTask({ userId: user.uid, task })).then(() => {
-      dispatch(fetchTasks(user.uid)); // Refresh tasks after adding
+      dispatch(fetchTasks(user.uid));
     });
   };
 
-  const handleMoveTask = (task: Task, newStatus: string) => {
-    if (!user || task.status === newStatus) return;
-
-    // Optimistic UI Update
-    const updatedTask = { ...task, status: newStatus };
-    dispatch(updateTask({ userId: user.uid, task: updatedTask }));
-
-    // Refresh tasks after Firestore update
-    setTimeout(() => {
-      dispatch(fetchTasks(user.uid));
-    }, 500); // Small delay to ensure Firestore has processed the update
+  const handleUpdateTask = (updatedTask: Task) => {
+    if (!user) return;
+    dispatch(updateTask({ 
+      userId: user.uid, 
+      taskId: updatedTask.id, 
+      updates: updatedTask 
+    })).unwrap()
+      .then(() => {
+        setIsUpdateModalOpen(false);
+        // Optionally refresh the tasks
+        dispatch(fetchTasks(user.uid));
+      })
+      .catch((error) => {
+        console.error("Failed to update task:", error);
+        // Handle error (show message to user, etc.)
+      });
   };
 
+  const handleMoveTask = useCallback(
+    (task: Task, newStatus: string) => {
+      if (!user || task.status === newStatus) return;
+      const updatedTask = { ...task, status: newStatus };
+      dispatch(updateTask({ 
+        userId: user.uid, 
+        taskId: task.id, 
+        updates: updatedTask 
+      })).then(() => {
+        dispatch(fetchTasks(user.uid));
+      });
+    },
+    [dispatch, user]
+  );
   const handleDeleteTask = (taskId: string) => {
     if (!user) return;
     dispatch(deleteTask({ userId: user.uid, taskId })).then(() => {
-      dispatch(fetchTasks(user.uid)); // Refresh tasks after deletion
+      dispatch(fetchTasks(user.uid));
     });
+  };
+
+  const openUpdateModal = (task: Task) => {
+    setEditTask(task);
+    setIsUpdateModalOpen(true);
   };
 
   return (
@@ -56,7 +82,7 @@ const Board: React.FC = () => {
         {user ? (
           <>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setIsAddModalOpen(true)}
               className="mb-4 p-2 bg-blue-500 text-white rounded"
             >
               Add Task
@@ -69,11 +95,22 @@ const Board: React.FC = () => {
                   tasks={tasks.filter((task) => task.status === status)}
                   moveTask={handleMoveTask}
                   deleteTask={handleDeleteTask}
+                  openUpdateModal={openUpdateModal}
                 />
               ))}
             </div>
-            {isModalOpen && (
-              <AddTaskModal onClose={() => setIsModalOpen(false)} onSave={handleAddTask} />
+            {isAddModalOpen && (
+              <AddTaskModal
+                onClose={() => setIsAddModalOpen(false)}
+                onSave={handleAddTask}
+              />
+            )}
+            {isUpdateModalOpen && editTask && (
+              <UpdateTaskModal
+                onClose={() => setIsUpdateModalOpen(false)}
+                onSave={handleUpdateTask}
+                task={editTask}  // Make sure editTask contains all required fields
+              />
             )}
           </>
         ) : (

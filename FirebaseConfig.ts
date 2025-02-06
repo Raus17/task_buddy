@@ -1,6 +1,7 @@
 import { initializeApp , getApps, getApp} from "firebase/app";
-import { initializeAuth,getAuth, GoogleAuthProvider, getReactNativePersistence } from "firebase/auth";
+import { initializeAuth,getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore"; 
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyANFZcl34LHenC4jj5Zw0ZCXyhs6rWOpKo",
@@ -14,6 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const storage = getStorage(app);
 
-export { auth, provider };
+export { auth, provider , storage };
 export const db = getFirestore(app); 
