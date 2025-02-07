@@ -4,6 +4,7 @@
     background-size: 70%;
     background-repeat: no-repeat;
     background-position: right center;
+    font-family: "Urbanist", serif;
 }
 .card {
     @apply w-1/2 justify-center items-center;

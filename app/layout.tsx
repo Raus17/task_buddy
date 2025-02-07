@@ -1,6 +1,6 @@
 "use client"
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Urbanist } from "next/font/google";
+import { Geist, Geist_Mono, Urbanist , Mulish } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { store } from "./redux/store"
@@ -10,6 +10,13 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
+
+const mulish = Mulish({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-mulish",
+});
+
 
 const urbanist = Urbanist({
   variable: "--font-urbanist",
@@ -37,7 +44,7 @@ export default function RootLayout({
         <AuthProvider>
         <Provider store={store}>
           <body
-            className={`${urbanist.variable} antialiased`}
+            className={`${urbanist.variable} ${mulish.variable} antialiased`}
           >
             {children}
           </body>

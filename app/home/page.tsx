@@ -10,12 +10,17 @@ import { FaListUl } from "react-icons/fa";
 import { PiSquaresFourBold } from "react-icons/pi";
 import Lottie from "react-lottie-player";
 import loaderAnimation from "../../public/Loader/Progress-Bar-(Donut)-[remix].json"; // Ensure the loader.json file exists
+import useIsMobile from "../hooks/useIsMobile";
+import HeaderMob from "../components/HeaderMob";
+import AddModelMob from "../components/AddTaskDrawer";
+import MobileTaskList from "../components/MobileTaskList";
 
 const Page = () => {
   const { user } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("list");
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 3000); // Simulate loading delay
@@ -28,11 +33,11 @@ const Page = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <Lottie 
-          loop 
-          animationData={loaderAnimation} 
-          play 
-          style={{ width: 150, height: 150 }} 
+        <Lottie
+          loop
+          animationData={loaderAnimation}
+          play
+          style={{ width: 150, height: 150 }}
         />
       </div>
     );
@@ -40,9 +45,9 @@ const Page = () => {
 
   return (
     <div>
-      <Header />
+      {isMobile ? <HeaderMob /> : <Header />}
 
-      <main className="pt-16 px-6">
+      {isMobile ? <MobileTaskList /> : <main className="pt-16 px-6">
         <div className="flex justify-between items-center border-b pb-2">
           <div className="flex items-center gap-6">
             <button
@@ -67,7 +72,7 @@ const Page = () => {
         </div>
 
         {activeTab === "list" ? <List /> : <Board />}
-      </main>
+      </main>}
     </div>
   );
 };

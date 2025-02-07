@@ -6,12 +6,10 @@ const TaskFilters = ({ tasks = [], onFilterChange }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedDueDate, setSelectedDueDate] = useState('');
 
-  // Safely get unique categories with null checks
   const categories = [...new Set(tasks?.map(task => task?.category || ''))]
     .filter(Boolean)
     .sort();
 
-  // Filter options for due dates
   const dueDateOptions = [
     { value: 'overdue', label: 'Overdue' },
     { value: 'today', label: 'Due Today' },
@@ -20,29 +18,28 @@ const TaskFilters = ({ tasks = [], onFilterChange }) => {
   ];
 
   useEffect(() => {
-    // Ensure tasks is an array before filtering
     const tasksArray = Array.isArray(tasks) ? tasks : [];
 
     const filteredTasks = tasksArray.filter(task => {
-      if (!task) return false;  // Skip if task is null/undefined
+      if (!task) return false;
 
-      const matchesSearch = (task.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      const matchesSearch =
+        (task.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (task.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
       const matchesCategory = !selectedCategory || task.category === selectedCategory;
 
       const matchesDueDate = () => {
-        if (!selectedDueDate || !task.dueDate) return true;
+        if (!selectedDueDate || !task.date) return true;
 
-        const taskDate = new Date(task.dueDate);
+        const taskDate = new Date(task.date);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const thisWeek = new Date(today);
-        thisWeek.setDate(today.getDate() + 7);
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
 
-        const thisMonth = new Date(today);
-        thisMonth.setMonth(today.getMonth() + 1);
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
         switch (selectedDueDate) {
           case 'overdue':
@@ -50,9 +47,9 @@ const TaskFilters = ({ tasks = [], onFilterChange }) => {
           case 'today':
             return taskDate.toDateString() === today.toDateString();
           case 'week':
-            return taskDate >= today && taskDate <= thisWeek;
+            return taskDate >= today && taskDate <= endOfWeek;
           case 'month':
-            return taskDate >= today && taskDate <= thisMonth;
+            return taskDate >= today && taskDate <= endOfMonth;
           default:
             return true;
         }
@@ -66,11 +63,9 @@ const TaskFilters = ({ tasks = [], onFilterChange }) => {
 
   return (
     <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-      {/* Filter Section */}
       <div className="flex flex-wrap items-center gap-4">
         <p className="p-2">Filter By :</p>
-  
-        {/* Category Filter */}
+
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -83,8 +78,7 @@ const TaskFilters = ({ tasks = [], onFilterChange }) => {
             </option>
           ))}
         </select>
-  
-        {/* Due Date Filter */}
+
         <select
           value={selectedDueDate}
           onChange={(e) => setSelectedDueDate(e.target.value)}
@@ -98,8 +92,7 @@ const TaskFilters = ({ tasks = [], onFilterChange }) => {
           ))}
         </select>
       </div>
-  
-      {/* Search Input - Aligned Right */}
+
       <div className="relative flex-grow max-w-md">
         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
         <input
