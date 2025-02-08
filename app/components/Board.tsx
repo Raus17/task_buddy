@@ -46,7 +46,7 @@ const Board: React.FC = () => {
 
   const handleAddTask = (task: Omit<Task, "id">) => {
     if (!user) return;
-    dispatch(addTask({ userId: user.uid, task })).then(() => {
+    dispatch(addTask({ userId: user.uid })).then(() => {
       dispatch(fetchTasks(user.uid));
       setIsAddModalOpen(false);
     });

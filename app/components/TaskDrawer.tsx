@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
@@ -40,13 +39,6 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
         return;
       }
       
-      // Check file type (you can modify this list based on your requirements)
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-      // if (!allowedTypes.includes(file.type)) {
-      //   alert("Invalid file type. Please upload an image or PDF.");
-      //   return;
-      // }
-      
       setAttachment(file);
     }
   };
@@ -77,7 +69,8 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
       setTaskCategory("Work");
       setTaskDate("");
       setAttachment(null);
-    } catch (error) {
+    } catch {
+      // Remove the unused error variable and just show the alert
       alert("Failed to save task. Please try again.");
     }
   };

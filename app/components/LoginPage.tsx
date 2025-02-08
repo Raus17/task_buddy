@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 
 
 const LoginPage = () => {
-  const { user, signInWithGoogle, logout } = useAuth();
+  const { user, signInWithGoogle } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
