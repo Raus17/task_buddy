@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { db } from "../../FirebaseConfig";
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc , writeBatch  } from "firebase/firestore";
 
 interface Task {
   id: string;
@@ -113,10 +113,34 @@ export const deleteTask = createAsyncThunk<
   return taskId;
 });
 
+export const updateTasksStatus = createAsyncThunk<
+  { taskIds: string[]; newStatus: string },
+  { userId: string; taskIds: string[]; newStatus: string }
+>("tasks/updateTasksStatus", async ({ userId, taskIds, newStatus }) => {
+  const batch = writeBatch(db);
+  
+  taskIds.forEach((taskId) => {
+    const taskRef = doc(db, `users/${userId}/tasks/${taskId}`);
+    batch.update(taskRef, { status: newStatus });
+  });
+
+  await batch.commit();
+  return { taskIds, newStatus };
+});
+
+
 const tasksSlice = createSlice({
   name: "tasks",
   initialState,
-  reducers: {},
+  reducers: {
+    changeTaskStatus: (state, action: PayloadAction<{ taskId: string; newStatus: string }>) => {
+      const task = state.tasks.find(task => task.id === action.payload.taskId);
+      if (task) {
+        task.status = action.payload.newStatus;
+      }
+    }
+
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTasks.pending, (state) => {
@@ -164,7 +188,21 @@ const tasksSlice = createSlice({
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.error = action.error.message || "Failed to delete task";
+      })
+      .addCase(updateTasksStatus.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(updateTasksStatus.fulfilled, (state, action) => {
+        const { taskIds, newStatus } = action.payload;
+        state.tasks = state.tasks.map(task => 
+          taskIds.includes(task.id) ? { ...task, status: newStatus } : task
+        );
+        state.error = null;
+      })
+      .addCase(updateTasksStatus.rejected, (state, action) => {
+        state.error = action.error.message || "Failed to update tasks status";
       });
+      
   },
 });
 

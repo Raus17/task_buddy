@@ -31,7 +31,27 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
   const [attachment, setAttachment] = useState<File | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleSave = () => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (e.g., limit to 5MB)
+      if (file.size > 1 * 1024 * 1024) {
+        alert("File size should be less than 5MB");
+        return;
+      }
+      
+      // Check file type (you can modify this list based on your requirements)
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+      // if (!allowedTypes.includes(file.type)) {
+      //   alert("Invalid file type. Please upload an image or PDF.");
+      //   return;
+      // }
+      
+      setAttachment(file);
+    }
+  };
+
+  const handleSave = async () => {
     if (!taskTitle || !taskStatus || !taskDate) {
       alert("Task title, status, and due date are required!");
       return;
@@ -46,16 +66,20 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
       attachment: attachment || undefined,
     };
 
-    onSave(newTask);
-    setIsOpen(false);
+    try {
+      await onSave(newTask);
+      setIsOpen(false);
 
-    // Reset fields after saving
-    setTaskTitle("");
-    setTaskDescription("");
-    setTaskStatus("To-Do");
-    setTaskCategory("Work");
-    setTaskDate("");
-    setAttachment(null);
+      // Reset fields after saving
+      setTaskTitle("");
+      setTaskDescription("");
+      setTaskStatus("To-Do");
+      setTaskCategory("Work");
+      setTaskDate("");
+      setAttachment(null);
+    } catch (error) {
+      alert("Failed to save task. Please try again.");
+    }
   };
 
   return (
@@ -84,9 +108,6 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
           <Editor value={taskDescription} onChange={setTaskDescription} />
         </div>
 
-
-
-
         <Label className="pb-2">Category</Label>
         <div className="flex gap-2 mb-3">
           {categories.map((cat) => (
@@ -100,17 +121,17 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
           ))}
         </div>
 
-        <Label className="pb-2 ">Due Date</Label>
+        <Label className="pb-2">Due Date</Label>
         <DatePicker
           value={taskDate}
           onChange={setTaskDate}
-          className="mb-3 "
+          className="mb-3"
         />
 
         <Label className="pb-2 mt-2">Status</Label>
         <Select onValueChange={setTaskStatus} value={taskStatus}>
           <SelectTrigger className="mb-3 w-1/2" />
-          <SelectContent >
+          <SelectContent>
             <SelectItem value="To-Do">To-Do</SelectItem>
             <SelectItem value="In-Progress">In-Progress</SelectItem>
             <SelectItem value="Completed">Completed</SelectItem>
@@ -120,11 +141,17 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
         <Label className="pb-2 mt-2">Attachment</Label>
         <Input
           type="file"
-          onChange={(e) => setAttachment(e.target.files?.[0] || null)}
+          onChange={handleFileChange}
           className="mb-3 w-1/2"
+          accept="image/*,application/pdf"
         />
+        {attachment && (
+          <div className="text-sm text-gray-500 mb-3">
+            Selected file: {attachment.name}
+          </div>
+        )}
 
-        <div className="flex  justify-between mt-4 w-full  ">
+        <div className="flex justify-between mt-4 w-full">
           <Button variant="outline" className="rounded-full" onClick={() => setIsOpen(false)}>Cancel</Button>
           <Button onClick={handleSave} className="bg-[#7B1984] rounded-full text-white">Create</Button>
         </div>
