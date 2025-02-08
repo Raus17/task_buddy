@@ -5,7 +5,7 @@ import styles from "../components/css/LoginPage.module.css";
 import Icon from "../components/Icon";
 import GoogleButton from "../components/GoogleButton";
 import { useAuth } from "../context/AuthContext";
-import Image from "next/image";
+
 
 const LoginPage = () => {
   const { user, signInWithGoogle, logout } = useAuth();

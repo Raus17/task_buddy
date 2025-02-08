@@ -6,10 +6,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { store } from "./redux/store"
 import { Provider } from 'react-redux';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+
 
 const mulish = Mulish({
   subsets: ["latin"],
@@ -23,10 +20,7 @@ const urbanist = Urbanist({
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+
 
 // export const metadata: Metadata = {
 //   title: "Create Next App",

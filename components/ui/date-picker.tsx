@@ -3,7 +3,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 export function DatePicker({ value, onChange }: { value: string; onChange: (date: string) => void }) {

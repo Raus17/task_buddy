@@ -1,5 +1,4 @@
 "use client"
-import Image from "next/image";
 import useIsMobile from "./hooks/useIsMobile";
 import LoginPage from "./components/LoginPage";
 import LoginPageMob from "./components/LoginPageMob";

@@ -12,7 +12,6 @@ import Lottie from "react-lottie-player";
 import loaderAnimation from "../../public/Loader/Progress-Bar-(Donut)-[remix].json"; // Ensure the loader.json file exists
 import useIsMobile from "../hooks/useIsMobile";
 import HeaderMob from "../components/HeaderMob";
-import AddModelMob from "../components/AddTaskDrawer";
 import MobileTaskList from "../components/MobileTaskList";
 
 const Page = () => {
