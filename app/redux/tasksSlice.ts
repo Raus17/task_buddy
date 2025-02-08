@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { db, storage } from "../../FirebaseConfig";
+import { db } from "../../FirebaseConfig";
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
 interface Task {
   id: string;
@@ -10,8 +9,11 @@ interface Task {
   date: string;
   status: string;
   category: string;
-  attachment?: File;
-  attachmentURL?: string;
+  attachmentData?: {
+    base64: string;
+    type: string;
+    name: string;
+  };
 }
 
 interface TaskState {
@@ -24,6 +26,16 @@ const initialState: TaskState = {
   tasks: [],
   loading: false,
   error: null,
+};
+
+// Helper function to convert File to base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
 };
 
 // Fetch tasks
@@ -39,24 +51,28 @@ export const fetchTasks = createAsyncThunk<Task[], string>(
 export const addTask = createAsyncThunk<Task, { userId: string; task: Task }>(
   "tasks/addTask",
   async ({ userId, task }) => {
-    let attachmentURL = null;
+    let attachmentData = null;
 
     if (task.attachment) {
-      const attachmentRef = ref(storage, `users/${userId}/tasks/${task.attachment.name}`);
-      await uploadBytes(attachmentRef, task.attachment);
-      attachmentURL = await getDownloadURL(attachmentRef);
+      const base64 = await fileToBase64(task.attachment);
+      attachmentData = {
+        base64,
+        type: task.attachment.type,
+        name: task.attachment.name
+      };
     }
 
-    const docRef = await addDoc(collection(db, `users/${userId}/tasks`), {
+    const taskData = {
       title: task.title,
       description: task.description,
       date: task.date,
       status: task.status,
       category: task.category,
-      attachmentURL,
-    });
+      attachmentData
+    };
 
-    return { id: docRef.id, ...task, attachmentURL };
+    const docRef = await addDoc(collection(db, `users/${userId}/tasks`), taskData);
+    return { id: docRef.id, ...taskData };
   }
 );
 
@@ -67,55 +83,33 @@ export const updateTask = createAsyncThunk<
 >("tasks/updateTask", async ({ userId, taskId, updates }) => {
   const taskRef = doc(db, `users/${userId}/tasks/${taskId}`);
   const updateData: Partial<Task> = { ...updates };
-  delete updateData.id; // Remove id from updates as it shouldn't be updated
+  delete updateData.id;
 
-  // Handle file attachment
   if (updates.attachment instanceof File) {
-    // Delete old attachment if it exists
-    if (updates.attachmentURL) {
-      try {
-        const oldAttachmentRef = ref(storage, updates.attachmentURL);
-        await deleteObject(oldAttachmentRef);
-      } catch (error) {
-        console.log("No old attachment to delete or error deleting:", error);
-      }
-    }
-
-    // Upload new attachment
-    const attachmentRef = ref(storage, `users/${userId}/tasks/${updates.attachment.name}`);
-    await uploadBytes(attachmentRef, updates.attachment);
-    updateData.attachmentURL = await getDownloadURL(attachmentRef);
+    const base64 = await fileToBase64(updates.attachment);
+    updateData.attachmentData = {
+      base64,
+      type: updates.attachment.type,
+      name: updates.attachment.name
+    };
   }
 
-  // Remove the File object before updating Firestore
   delete updateData.attachment;
-
   await updateDoc(taskRef, updateData);
 
-  // Return the complete updated task
   return {
     id: taskId,
     ...updates,
-    attachmentURL: updateData.attachmentURL || updates.attachmentURL,
+    attachmentData: updateData.attachmentData || updates.attachmentData,
   };
 });
 
 // Delete a task
 export const deleteTask = createAsyncThunk<
   string,
-  { userId: string; taskId: string; attachmentURL?: string }
->("tasks/deleteTask", async ({ userId, taskId, attachmentURL }) => {
+  { userId: string; taskId: string }
+>("tasks/deleteTask", async ({ userId, taskId }) => {
   await deleteDoc(doc(db, `users/${userId}/tasks/${taskId}`));
-
-  if (attachmentURL) {
-    try {
-      const attachmentRef = ref(storage, attachmentURL);
-      await deleteObject(attachmentRef);
-    } catch (error) {
-      console.log("Error deleting attachment:", error);
-    }
-  }
-
   return taskId;
 });
 

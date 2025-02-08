@@ -18,13 +18,17 @@ interface Task {
   status: string;
   category: string;
   attachment?: File;
-  attachmentURL?: string;
+  attachmentData?: {
+    base64: string;
+    type: string;
+    name: string;
+  };
 }
 
 interface UpdateTaskModalProps {
   onClose: () => void;
   onSave: (task: Task) => void;
-  task: Task; // Add this prop
+  task: Task;
 }
 
 const categories = ["Work", "Personal"];
@@ -47,7 +51,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ onClose, onSave, task
       ListItem,
       Placeholder.configure({ placeholder: "Description" }),
     ],
-    content: task.description, // Initialize with existing description
+    content: task.description,
     onUpdate: ({ editor }) => {
       const text = editor.getText();
       if (text.length > 300) {
@@ -56,7 +60,6 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ onClose, onSave, task
     },
   });
 
-  // Update editor content when task changes
   useEffect(() => {
     if (editor && task.description) {
       editor.commands.setContent(task.description);
@@ -76,7 +79,6 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ onClose, onSave, task
     e.preventDefault();
     const description = editor?.getHTML() || "";
     
-    // Preserve the original task ID and merge with updates
     const updatedTask: Task = {
       ...task,
       title,
@@ -89,6 +91,38 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ onClose, onSave, task
 
     onSave(updatedTask);
     onClose();
+  };
+
+  const handleViewAttachment = () => {
+    if (task.attachmentData?.base64) {
+      // Create a blob from base64 data
+      const byteCharacters = atob(task.attachmentData.base64.split(',')[1]);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: task.attachmentData.type });
+
+      // Create object URL for viewing/downloading
+      const url = URL.createObjectURL(blob);
+
+      if (task.attachmentData.type.startsWith('image/')) {
+        // Open image in new window
+        window.open(url, '_blank');
+      } else {
+        // Download file
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = task.attachmentData.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
+      // Clean up object URL
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    }
   };
 
   return (
@@ -168,16 +202,31 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({ onClose, onSave, task
             </div>
           </div>
 
+          <div className="mb-4">
           <input
             type="file"
             accept="image/*,.pdf"
             onChange={handleFileChange}
-            className="w-full p-2 mb-4 border rounded"
+            className="w-full p-2 mb-2 border rounded"
           />
-          {attachment && <p className="text-sm text-gray-600">Attached: {attachment.name}</p>}
-          {task.attachmentURL && !attachment && (
-            <p className="text-sm text-gray-600">Current attachment: {task.attachmentURL}</p>
+          {attachment && (
+            <p className="text-sm text-gray-600">New attachment: {attachment.name}</p>
           )}
+          {task.attachmentData && !attachment && (
+            <div className="flex items-center">
+              <p className="text-sm text-gray-600 mr-2">
+                Current attachment: {task.attachmentData.name}
+              </p>
+              <button
+                type="button"
+                onClick={handleViewAttachment}
+                className="text-purple-600 hover:text-purple-700 text-sm underline"
+              >
+                View/Download
+              </button>
+            </div>
+          )}
+        </div>
 
           <div className="absolute bottom-0 left-0 w-full bg-[#F1F1F1]">
             <div className="border-b border-gray-300"></div>
