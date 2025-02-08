@@ -61,12 +61,16 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button className="w-full bg-purple-600 text-white">+ Add Task</Button>
+        <div className="flex justify-end">
+          <Button className="bg-purple-600 font-semibold rounded-full text-white">
+            Add Task
+          </Button>
+        </div>
       </DrawerTrigger>
       <DrawerContent className="p-5">
         <h2 className="text-lg font-semibold text-center mb-4">Create Task</h2>
-        
-        <Label>Task Title</Label>
+
+        <Label className="pb-2">Task Title</Label>
         <Input
           type="text"
           placeholder="Task title"
@@ -74,22 +78,16 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
           onChange={(e) => setTaskTitle(e.target.value)}
           className="mb-3"
         />
-        
-        <Label>Description</Label>
-        <Editor
-          value={taskDescription}
-          onChange={setTaskDescription}
-          className="mb-3"
-        />
-        
-        <Label>Attachment</Label>
-        <Input
-          type="file"
-          onChange={(e) => setAttachment(e.target.files?.[0] || null)}
-          className="mb-3"
-        />
-        
-        <Label>Category</Label>
+
+        <Label className="pb-2">Description</Label>
+        <div className="mb-3 min-h-[150px] h-auto border rounded-md p-3">
+          <Editor value={taskDescription} onChange={setTaskDescription} />
+        </div>
+
+
+
+
+        <Label className="pb-2">Category</Label>
         <div className="flex gap-2 mb-3">
           {categories.map((cat) => (
             <Button
@@ -101,27 +99,34 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onSave }) => {
             </Button>
           ))}
         </div>
-        
-        <Label>Due Date</Label>
+
+        <Label className="pb-2 ">Due Date</Label>
         <DatePicker
           value={taskDate}
           onChange={setTaskDate}
-          className="mb-3"
+          className="mb-3 "
         />
-        
-        <Label>Status</Label>
+
+        <Label className="pb-2 mt-2">Status</Label>
         <Select onValueChange={setTaskStatus} value={taskStatus}>
-          <SelectTrigger className="mb-3" />
-          <SelectContent>
+          <SelectTrigger className="mb-3 w-1/2" />
+          <SelectContent >
             <SelectItem value="To-Do">To-Do</SelectItem>
             <SelectItem value="In-Progress">In-Progress</SelectItem>
             <SelectItem value="Completed">Completed</SelectItem>
           </SelectContent>
         </Select>
-        
-        <div className="flex justify-between mt-4">
-          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button onClick={handleSave} className="bg-purple-600 text-white">Create</Button>
+
+        <Label className="pb-2 mt-2">Attachment</Label>
+        <Input
+          type="file"
+          onChange={(e) => setAttachment(e.target.files?.[0] || null)}
+          className="mb-3 w-1/2"
+        />
+
+        <div className="flex  justify-between mt-4 w-full  ">
+          <Button variant="outline" className="rounded-full" onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button onClick={handleSave} className="bg-[#7B1984] rounded-full text-white">Create</Button>
         </div>
       </DrawerContent>
     </Drawer>

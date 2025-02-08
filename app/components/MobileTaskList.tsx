@@ -103,11 +103,11 @@ const MobileTaskList: React.FC = () => {
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      {renderSection("To-Do", "bg-pink-200")}
+    <div className="p-4 max-w-md mx-auto pt-20">
+      <TaskDrawer onSave={handleAddTask} />
+      {renderSection("To-Do", "bg-pink-200 mt-4")}
       {renderSection("In-Progress", "bg-blue-200")}
       {renderSection("Completed", "bg-green-200")}
-      <TaskDrawer onSave={handleAddTask} />
 
     </div>
   );
