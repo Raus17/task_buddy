@@ -46,8 +46,9 @@ const Page = () => {
     <div>
       {isMobile ? <HeaderMob /> : <Header />}
 
-      {isMobile ? <MobileTaskList /> : <main className="pt-16 px-6">
-        <div className="flex justify-between items-center border-b pb-2">
+       <main className="pt-16 px-6">
+        {/* for future referenc */}
+        {/* <div className="flex justify-between items-center border-b pb-2">
           <div className="flex items-center gap-6">
             <button
               className={`flex items-center gap-2 px-3 py-1 text-lg font-semibold transition-all ${activeTab === "list" ? "text-black border-b-2 border-black" : "text-gray-400"
@@ -67,11 +68,14 @@ const Page = () => {
               Board
             </button>
           </div>
+          </div> */}
+          <div className="mb-2 inline-block ">
           <LogoutButton />
-        </div>
+          </div>
 
-        {activeTab === "list" ? <List /> : <Board />}
-      </main>}
+        {/* {activeTab === "list" ? <List /> : <Board />} */}
+        <List />
+      </main>
     </div>
   );
 };
